@@ -1,0 +1,40 @@
+/*
+ * SearchBar component styles
+ */
+
+.search-bar {
+ position: relative;
+ display: flex;
+ align-items: center;
+}
+
+.search-icon {
+ position: absolute;
+ left: 12px;
+ color: var(--text-tertiary);
+ pointer-events: none;
+}
+
+.search-input {
+ width: 100%;
+ padding-left: 36px;
+ padding-right: 32px;
+}
+
+.search-clear {
+ position: absolute;
+ right: 8px;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ width: 20px;
+ height: 20px;
+ border-radius: 50%;
+ color: var(--text-tertiary);
+ transition: all var(--transition-fast);
+}
+
+.search-clear:hover {
+ color: var(--text-primary);
+ background: var(--bg-tertiary);
+}

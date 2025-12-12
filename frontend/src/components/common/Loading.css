@@ -1,0 +1,41 @@
+/*
+ * Loading component styles
+ */
+
+.loading-container {
+ padding: var(--spacing-md);
+}
+
+.skeleton-item {
+ padding: var(--spacing-md);
+ margin-bottom: var(--spacing-sm);
+}
+
+.skeleton-text {
+ height: 14px;
+ margin-bottom: var(--spacing-sm);
+ width: 100%;
+}
+
+.skeleton-text.short {
+ width: 60%;
+}
+
+.skeleton-title {
+ height: 20px;
+ width: 40%;
+ margin-bottom: var(--spacing-md);
+}
+
+.loading-card {
+ min-height: 120px;
+}
+
+.loading-chart {
+ padding: var(--spacing-lg);
+}
+
+.skeleton-chart {
+ height: 300px;
+ border-radius: var(--radius-md);
+}

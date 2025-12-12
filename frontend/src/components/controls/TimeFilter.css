@@ -1,0 +1,30 @@
+/*
+ * TimeFilter component styles
+ */
+
+.time-filter {
+ display: flex;
+ gap: 4px;
+ background: var(--bg-tertiary);
+ padding: 4px;
+ border-radius: var(--radius-md);
+}
+
+.time-btn {
+ padding: 6px 12px;
+ border-radius: var(--radius-sm);
+ font-size: 0.8rem;
+ font-weight: 500;
+ color: var(--text-secondary);
+ transition: all var(--transition-fast);
+}
+
+.time-btn:hover {
+ color: var(--text-primary);
+}
+
+.time-btn.active {
+ background: var(--bg-secondary);
+ color: var(--accent-primary);
+ box-shadow: var(--shadow-sm);
+}

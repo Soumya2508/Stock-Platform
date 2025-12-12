@@ -1,0 +1,55 @@
+/*
+ * Correlation page styles
+ */
+
+.correlation-page {
+ max-width: 1200px;
+ margin: 0 auto;
+}
+
+.correlation-info {
+ margin-top: var(--spacing-xl);
+ padding: var(--spacing-lg);
+ background: var(--bg-card);
+ border: 1px solid var(--border-color);
+ border-radius: var(--radius-lg);
+}
+
+.correlation-info h3 {
+ font-size: 1rem;
+ margin-bottom: var(--spacing-md);
+}
+
+.info-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+ gap: var(--spacing-md);
+}
+
+.info-item {
+ display: flex;
+ flex-direction: column;
+ gap: var(--spacing-xs);
+}
+
+.info-value {
+ font-size: 1.25rem;
+ font-weight: 700;
+}
+
+.info-value.positive {
+ color: var(--success);
+}
+
+.info-value.neutral {
+ color: var(--text-secondary);
+}
+
+.info-value.negative {
+ color: var(--danger);
+}
+
+.info-desc {
+ font-size: 0.85rem;
+ color: var(--text-tertiary);
+}

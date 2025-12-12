@@ -1,0 +1,78 @@
+/*
+ * TopMovers component styles
+ */
+
+.top-movers {
+ padding: var(--spacing-lg);
+ background: var(--bg-card);
+ border: 1px solid var(--border-color);
+ border-radius: var(--radius-lg);
+}
+
+.top-movers h3 {
+ font-size: 1rem;
+ margin-bottom: var(--spacing-md);
+}
+
+.movers-section {
+ margin-bottom: var(--spacing-md);
+}
+
+.movers-section:last-child {
+ margin-bottom: 0;
+}
+
+.gainers-title {
+ font-size: 0.75rem;
+ color: var(--success);
+ text-transform: uppercase;
+ letter-spacing: 0.5px;
+ margin-bottom: var(--spacing-sm);
+}
+
+.losers-title {
+ font-size: 0.75rem;
+ color: var(--danger);
+ text-transform: uppercase;
+ letter-spacing: 0.5px;
+ margin-bottom: var(--spacing-sm);
+}
+
+.movers-list {
+ display: flex;
+ flex-direction: column;
+ gap: var(--spacing-xs);
+}
+
+.mover-item {
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ padding: var(--spacing-sm) var(--spacing-md);
+ border-radius: var(--radius-sm);
+ transition: background var(--transition-fast);
+}
+
+.mover-item.gainer {
+ background: var(--success-bg);
+}
+
+.mover-item.loser {
+ background: var(--danger-bg);
+}
+
+.mover-symbol {
+ font-weight: 600;
+ font-size: 0.85rem;
+ color: var(--text-primary);
+}
+
+.mover-change {
+ font-weight: 600;
+ font-size: 0.85rem;
+}
+
+.movers-loading {
+ color: var(--text-tertiary);
+ font-size: 0.875rem;
+}

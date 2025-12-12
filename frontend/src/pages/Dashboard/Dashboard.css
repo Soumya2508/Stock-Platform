@@ -1,0 +1,78 @@
+/*
+ * Dashboard page styles
+ */
+
+.dashboard {
+ max-width: 1400px;
+ margin: 0 auto;
+}
+
+.dashboard-header {
+ margin-bottom: var(--spacing-xl);
+}
+
+.dashboard-header h1 {
+ font-size: 1.75rem;
+ margin-bottom: var(--spacing-xs);
+}
+
+.dashboard-header p {
+ font-size: 0.95rem;
+}
+
+.dashboard-layout {
+ display: grid;
+ grid-template-columns: 1fr 300px;
+ gap: var(--spacing-lg);
+ align-items: start;
+}
+
+.dashboard-main {
+ min-width: 0;
+}
+
+.dashboard-sidebar {
+ position: sticky;
+ top: 80px;
+}
+
+.welcome-section {
+ margin-bottom: var(--spacing-xl);
+}
+
+.welcome-card {
+ padding: var(--spacing-xl);
+ background: var(--gradient-card);
+ border: 1px solid var(--border-color);
+ border-radius: var(--radius-lg);
+ text-align: center;
+}
+
+.welcome-card h2 {
+ margin-bottom: var(--spacing-md);
+ background: var(--gradient-primary);
+ -webkit-background-clip: text;
+ -webkit-text-fill-color: transparent;
+ background-clip: text;
+}
+
+.welcome-card p {
+ max-width: 500px;
+ margin: 0 auto;
+}
+
+.stock-detail {
+ display: flex;
+ flex-direction: column;
+ gap: var(--spacing-lg);
+}
+
+@media (max-width: 1024px) {
+ .dashboard-layout {
+  grid-template-columns: 1fr;
+ }
+
+ .dashboard-sidebar {
+  position: static;
+ }
+}
