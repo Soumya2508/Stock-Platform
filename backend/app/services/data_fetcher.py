@@ -70,8 +70,14 @@ def generate_mock_data(symbol: str, period: str = "1y") -> pd.DataFrame:
     df = pd.DataFrame(index=dates)
     df['open'] = price_path * (1 + np.random.normal(0, 0.005, input_dates))
     df['close'] = price_path
-    df['high'] = df[['open', 'close']].max(axis=1) * (1 + abs(np.random.normal(0, 0.005, input_dates)))
-    df['low'] = df[['open', 'close']].min(axis=1) * (1 - abs(np.random.normal(0, 0.005, input_dates)))
+    
+    # Ensure high is ALWAYS >= max(open, close) and low is ALWAYS <= min(open, close)
+    daily_max = np.maximum(df['open'].values, df['close'].values)
+    daily_min = np.minimum(df['open'].values, df['close'].values)
+    high_multiplier = 1 + np.random.uniform(0.005, 0.02, input_dates)  # 0.5% to 2% higher
+    low_multiplier = 1 - np.random.uniform(0.005, 0.02, input_dates)   # 0.5% to 2% lower
+    df['high'] = daily_max * high_multiplier
+    df['low'] = daily_min * low_multiplier
     df['volume'] = np.random.randint(100000, 5000000, size=input_dates)
     
     df['symbol'] = symbol
@@ -102,8 +108,13 @@ def fetch_stock_data(symbol: str, period: str = DATA_PERIOD) -> Optional[pd.Data
         # Reset index to make Date a column
         df.reset_index(inplace=True)
         
-        # Standardize column names
-        df.columns = [col.lower().replace(' ', '_') for col in df.columns]
+        # Standardize column names - handle both tuple and string column names (yfinance compatibility)
+        new_columns = []
+        for col in df.columns:
+            if isinstance(col, tuple):
+                col = col[0]  # Take first element of tuple
+            new_columns.append(str(col).lower().replace(' ', '_'))
+        df.columns = new_columns
         
         # Add symbol column
         df['symbol'] = symbol
