@@ -46,7 +46,6 @@ class StockSummary(BaseModel):
     momentum: float
     trend_strength: float
 
-
 class ComparisonPerformance(BaseModel):
     """Performance metrics for one stock in comparison."""
     total_return: float

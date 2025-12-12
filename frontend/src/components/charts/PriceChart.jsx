@@ -6,7 +6,6 @@
 
 import { useMemo } from 'react';
 import {
- LineChart,
  Line,
  XAxis,
  YAxis,
@@ -14,7 +13,7 @@ import {
  Tooltip,
  ResponsiveContainer,
  Area,
- AreaChart
+ ComposedChart
 } from 'recharts';
 import { useStockData } from '../../hooks/useStockData';
 import { useStock } from '../../context/StockContext';
@@ -34,15 +33,15 @@ function PriceChart({ symbol }) {
   return data.data.map(d => ({
    date: d.date,
    close: d.close,
-   ma7: d.ma_7,
-   ma20: d.ma_20
+   open: d.open,
+   ma7: d.ma_7
   }));
  }, [data]);
 
  const colors = {
   primary: theme === 'dark' ? '#6366f1' : '#4f46e5',
+  open: theme === 'dark' ? '#f59e0b' : '#d97706',
   ma7: theme === 'dark' ? '#22c55e' : '#16a34a',
-  ma20: theme === 'dark' ? '#f59e0b' : '#d97706',
   grid: theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
   text: theme === 'dark' ? '#a0a0b0' : '#475569',
   gradient: theme === 'dark' ? 'rgba(99,102,241,0.2)' : 'rgba(79,70,229,0.1)'
@@ -80,16 +79,16 @@ function PriceChart({ symbol }) {
     <div className="chart-tooltip">
      <p className="tooltip-date">{formatDate(label)}</p>
      <p className="tooltip-value">
-      <span style={{ color: colors.primary }}>Price:</span> {formatCurrency(payload[0]?.value)}
+      <span style={{ color: colors.primary }}>Close:</span> {formatCurrency(payload[0]?.value)}
      </p>
      {payload[1] && (
       <p className="tooltip-value">
-       <span style={{ color: colors.ma7 }}>MA7:</span> {formatCurrency(payload[1]?.value)}
+       <span style={{ color: colors.open }}>Open:</span> {formatCurrency(payload[1]?.value)}
       </p>
      )}
      {payload[2] && (
       <p className="tooltip-value">
-       <span style={{ color: colors.ma20 }}>MA20:</span> {formatCurrency(payload[2]?.value)}
+       <span style={{ color: colors.ma7 }}>MA7:</span> {formatCurrency(payload[2]?.value)}
       </p>
      )}
     </div>
@@ -110,7 +109,7 @@ function PriceChart({ symbol }) {
 
    <div className="chart-container">
     <ResponsiveContainer width="100%" height={350}>
-     <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+     <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
       <defs>
        <linearGradient id="colorClose" x1="0" y1="0" x2="0" y2="1">
         <stop offset="5%" stopColor={colors.primary} stopOpacity={0.3} />
@@ -140,6 +139,15 @@ function PriceChart({ symbol }) {
        stroke={colors.primary}
        strokeWidth={2}
        fill="url(#colorClose)"
+       name="Close"
+      />
+      <Line
+       type="monotone"
+       dataKey="open"
+       stroke={colors.open}
+       strokeWidth={2}
+       dot={false}
+       name="Open"
       />
       <Line
        type="monotone"
@@ -147,15 +155,9 @@ function PriceChart({ symbol }) {
        stroke={colors.ma7}
        strokeWidth={2}
        dot={false}
+       name="MA7"
       />
-      <Line
-       type="monotone"
-       dataKey="ma20"
-       stroke={colors.ma20}
-       strokeWidth={2}
-       dot={false}
-      />
-     </AreaChart>
+     </ComposedChart>
     </ResponsiveContainer>
    </div>
 
@@ -165,12 +167,12 @@ function PriceChart({ symbol }) {
      <span>Close Price</span>
     </div>
     <div className="legend-item">
-     <span className="legend-color dashed" style={{ background: colors.ma7 }}></span>
-     <span>7-Day MA</span>
+     <span className="legend-color" style={{ background: colors.open }}></span>
+     <span>Open Price</span>
     </div>
     <div className="legend-item">
-     <span className="legend-color dashed" style={{ background: colors.ma20 }}></span>
-     <span>20-Day MA</span>
+     <span className="legend-color dashed" style={{ background: colors.ma7 }}></span>
+     <span>7-Day MA</span>
     </div>
    </div>
   </div>
