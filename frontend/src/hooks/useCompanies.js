@@ -14,7 +14,7 @@ export function useCompanies() {
   try {
    setLoading(true);
    const response = await companiesApi.getAll();
-   setCompanies(response.data.companies || []);
+   setCompanies(response?.data?.companies || []);
    setError(null);
   } catch (err) {
    setError(err.message || 'Failed to fetch companies');
