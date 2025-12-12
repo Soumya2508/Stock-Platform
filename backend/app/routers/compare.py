@@ -121,16 +121,28 @@ async def get_correlation_matrix():
     if cached:
         return cached
     
-    # Fetch data for all stocks
-    stock_data = {}
+    # Fetch data for all stocks in BULK
+    # This optimization fixes the timeout issue
+    from app.services.data_fetcher import fetch_all_stocks
     
-    for symbol in STOCK_SYMBOLS:
-        df = fetch_stock_data(symbol, period="1y")
-        if df is not None:
+    # fetch_all_stocks returns Dict[str, DataFrame]
+    # We need to process them similarly to single fetch
+    raw_stock_data = fetch_all_stocks(STOCK_SYMBOLS)
+    
+    stock_data = {}
+    for symbol, df in raw_stock_data.items():
+        if df is not None and not df.empty:
+            # Data is already cleaner from fetch_all_stocks but let's ensure metrics
+            # Note: clean_stock_data expects raw yf data but our fetch_all_stocks returns semi-processed
+            # We should skip clean_stock_data if it duplicates, but let's be safe
+            # Actually fetch_all_stocks returns DFs with 'date' column etc.
+            
+            # clean_stock_data handles checks. 
+            # calculate_all_metrics adds daily_return which is needed for correlation
             df = clean_stock_data(df)
             df = calculate_all_metrics(df)
             stock_data[symbol] = df
-    
+            
     if len(stock_data) < 2:
         raise HTTPException(
             status_code=503,
