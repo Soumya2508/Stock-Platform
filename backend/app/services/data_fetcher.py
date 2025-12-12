@@ -90,6 +90,20 @@ def generate_mock_data(symbol: str, period: str = "1y") -> pd.DataFrame:
 
 
 
+def _flatten_yf_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Flatten MultiIndex columns from yfinance to simple lowercase strings.
+    yfinance 0.2.50+ returns MultiIndex columns like ('Close', 'SYMBOL') even for single symbols.
+    """
+    if isinstance(df.columns, pd.MultiIndex):
+        # Take first level (Price type: Open, High, Low, Close, Volume)
+        df.columns = [col[0] if isinstance(col, tuple) else col for col in df.columns]
+    
+    # Standardize to lowercase
+    df.columns = [str(col).lower().replace(' ', '_') for col in df.columns]
+    return df
+
+
 def fetch_stock_data(symbol: str, period: str = DATA_PERIOD) -> Optional[pd.DataFrame]:
     """
     Fetch historical stock data for a single symbol.
@@ -97,8 +111,7 @@ def fetch_stock_data(symbol: str, period: str = DATA_PERIOD) -> Optional[pd.Data
     Fallback to mock data if fetch fails.
     """
     try:
-        # download returns a MultiIndex if we don't specify it to be simple for 1 ticker
-        # but auto_adjust=True is good for analysis
+        # download returns a MultiIndex even for single ticker in yfinance >= 0.2.50
         df = yf.download(symbol, period=period, progress=False, auto_adjust=True)
         
         if df.empty:
@@ -108,13 +121,8 @@ def fetch_stock_data(symbol: str, period: str = DATA_PERIOD) -> Optional[pd.Data
         # Reset index to make Date a column
         df.reset_index(inplace=True)
         
-        # Standardize column names - handle both tuple and string column names (yfinance compatibility)
-        new_columns = []
-        for col in df.columns:
-            if isinstance(col, tuple):
-                col = col[0]  # Take first element of tuple
-            new_columns.append(str(col).lower().replace(' ', '_'))
-        df.columns = new_columns
+        # Flatten MultiIndex columns from new yfinance versions
+        df = _flatten_yf_columns(df)
         
         # Add symbol column
         df['symbol'] = symbol
@@ -150,42 +158,52 @@ def fetch_all_stocks(symbols: List[str] = STOCK_SYMBOLS) -> Dict[str, pd.DataFra
                 all_data[symbol] = generate_mock_data(symbol, DATA_PERIOD)
             return all_data
 
+        # yfinance returns MultiIndex columns with group_by='ticker'
+        # Level 0 = ticker symbol, Level 1 = price type (Open, High, Low, Close, Volume)
         if isinstance(df.columns, pd.MultiIndex):
+            # Get available tickers from the MultiIndex
+            available_tickers = df.columns.get_level_values(0).unique().tolist()
+            
             for symbol in symbols:
-                if symbol in df.columns:
+                if symbol in available_tickers:
                     symbol_df = df[symbol].copy()
                     
-                    if symbol_df.empty or symbol_df['Close'].count() == 0:
+                    # Check if we have valid data (Close column with values)
+                    close_col = 'Close' if 'Close' in symbol_df.columns else 'close'
+                    if symbol_df.empty or close_col not in symbol_df.columns or symbol_df[close_col].count() == 0:
                         all_data[symbol] = generate_mock_data(symbol, DATA_PERIOD)
                         continue
                         
                     symbol_df.reset_index(inplace=True)
-                    symbol_df.columns = [col.lower().replace(' ', '_') for col in symbol_df.columns]
+                    symbol_df.columns = [str(col).lower().replace(' ', '_') for col in symbol_df.columns]
                     symbol_df['symbol'] = symbol
                     if 'date' in symbol_df.columns:
                         symbol_df['date'] = pd.to_datetime(symbol_df['date']).dt.date
                         
                     all_data[symbol] = symbol_df
                 else: 
-                     # Missing symbol in bulk result
-                     all_data[symbol] = generate_mock_data(symbol, DATA_PERIOD)
+                    # Missing symbol in bulk result
+                    logger.warning(f"{symbol} not found in bulk download, using mock data")
+                    all_data[symbol] = generate_mock_data(symbol, DATA_PERIOD)
         else:
-             # Single symbol case fallback or weird structure
-             if len(symbols) == 1:
+            # Single symbol case or non-MultiIndex structure
+            if len(symbols) == 1:
                 symbol = symbols[0]
-                if df.empty or 'Close' not in df.columns or df['Close'].count() == 0:
-                     all_data[symbol] = generate_mock_data(symbol, DATA_PERIOD)
+                df = _flatten_yf_columns(df)
+                if df.empty or 'close' not in df.columns or df['close'].count() == 0:
+                    all_data[symbol] = generate_mock_data(symbol, DATA_PERIOD)
                 else:
                     df.reset_index(inplace=True)
-                    df.columns = [col.lower().replace(' ', '_') for col in df.columns]
+                    df = _flatten_yf_columns(df)
                     df['symbol'] = symbol
                     if 'date' in df.columns:
                         df['date'] = pd.to_datetime(df['date']).dt.date
                     all_data[symbol] = df
-             else:
-                # If structure confused, use mock for all missing
-                 for symbol in symbols:
-                     all_data[symbol] = generate_mock_data(symbol, DATA_PERIOD)
+            else:
+                # If structure confused, use mock for all
+                logger.warning("Unexpected DataFrame structure, using mock data for all")
+                for symbol in symbols:
+                    all_data[symbol] = generate_mock_data(symbol, DATA_PERIOD)
 
         if not all_data:
              logger.warning("Processed data is empty, switching to mock data for all stocks")
@@ -282,14 +300,21 @@ def fetch_latest_prices_bulk(symbols: List[str]) -> Dict[str, Dict]:
                 results[symbol] = {'current_price': round(curr, 2), 'daily_change': round(change, 2)}
             return results
 
+        # Get available tickers from MultiIndex
+        available_tickers = []
+        if isinstance(df.columns, pd.MultiIndex):
+            available_tickers = df.columns.get_level_values(0).unique().tolist()
+        
         # Iterate symbols and try to extract real data
         for symbol in symbols:
             found = False
             try:
-                if symbol in df.columns:
+                if symbol in available_tickers:
                     symbol_df = df[symbol]
-                    if 'Close' in symbol_df.columns:
-                        series = symbol_df['Close'].dropna()
+                    # Handle both 'Close' and 'close' column names
+                    close_col = 'Close' if 'Close' in symbol_df.columns else ('close' if 'close' in symbol_df.columns else None)
+                    if close_col:
+                        series = symbol_df[close_col].dropna()
                         if len(series) >= 2:
                             current_price = float(series.iloc[-1])
                             prev_close = float(series.iloc[-2])
@@ -300,8 +325,7 @@ def fetch_latest_prices_bulk(symbols: List[str]) -> Dict[str, Dict]:
                             }
                             found = True
             except Exception as e:
-                # Log debug but don't stop
-                pass
+                logger.debug(f"Error extracting {symbol} from bulk data: {e}")
             
             # If real fetch failed for this symbol, use Mock
             if not found:
