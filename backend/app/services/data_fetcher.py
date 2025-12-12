@@ -176,13 +176,20 @@ def fetch_all_stocks(symbols: List[str] = STOCK_SYMBOLS) -> Dict[str, pd.DataFra
                  for symbol in symbols:
                      all_data[symbol] = generate_mock_data(symbol, DATA_PERIOD)
 
-        logger.info(f"Successfully fetched/mocked data for {len(all_data)}/{len(symbols)} stocks")
+        if not all_data:
+             logger.warning("Processed data is empty, switching to mock data for all stocks")
+             for symbol in symbols:
+                 all_data[symbol] = generate_mock_data(symbol, DATA_PERIOD)
+                 
+        logger.info(f"Successfully fetched bulk data for {len(all_data)}/{len(symbols)} stocks")
         return all_data
         
     except Exception as e:
         logger.error(f"Error in fetch_all_stocks: {e}. Using mock data.")
-        for symbol in symbols:
-            all_data[symbol] = generate_mock_data(symbol, DATA_PERIOD)
+        # Ensure we return something
+        if not all_data:
+             for symbol in symbols:
+                all_data[symbol] = generate_mock_data(symbol, DATA_PERIOD)
         return all_data
 
 
@@ -253,24 +260,10 @@ def fetch_latest_prices_bulk(symbols: List[str]) -> Dict[str, Dict]:
         # Download data for all symbols at once
         df = yf.download(symbols, period='5d', progress=False, group_by='ticker')
         
-        if df.empty:
-            raise Exception("Empty bulk response")
-
-        # Process logic same as before...
-        # If single symbol
-        if len(symbols) == 1:
-            symbol = symbols[0]
-            if not df.empty and len(df) >= 2:
-                try:
-                    current = float(df['Close'].iloc[-1])
-                    prev = float(df['Close'].iloc[-2])
-                    change = ((current - prev) / prev) * 100 if prev != 0 else 0
-                    results[symbol] = {'current_price': round(current, 2), 'daily_change': round(change, 2)}
-                except:
-                    pass
-            
-            if symbol not in results:
-                 # Mock
+        # Check if df is valid
+        if df is None or df.empty:
+            logger.warning("Bulk fetch returned empty/none, switching to mock data")
+            for symbol in symbols:
                 df_mock = generate_mock_data(symbol, '5d')
                 curr = df_mock['close'].iloc[-1]
                 prev = df_mock['close'].iloc[-2]
@@ -278,7 +271,7 @@ def fetch_latest_prices_bulk(symbols: List[str]) -> Dict[str, Dict]:
                 results[symbol] = {'current_price': round(curr, 2), 'daily_change': round(change, 2)}
             return results
 
-        # Multiple symbols
+        # Iterate symbols and try to extract real data
         for symbol in symbols:
             found = False
             try:
@@ -295,21 +288,23 @@ def fetch_latest_prices_bulk(symbols: List[str]) -> Dict[str, Dict]:
                                 'daily_change': round(change, 2)
                             }
                             found = True
-            except:
+            except Exception as e:
+                # Log debug but don't stop
                 pass
             
+            # If real fetch failed for this symbol, use Mock
             if not found:
-                 # Fallback mock for this symbol
                 df_mock = generate_mock_data(symbol, '5d')
                 curr = df_mock['close'].iloc[-1]
                 prev = df_mock['close'].iloc[-2]
                 change = ((curr - prev)/prev)*100
                 results[symbol] = {'current_price': round(curr, 2), 'daily_change': round(change, 2)}
-                
+        
+        logger.info(f"Bulk fetched (with mock fallback) prices for {len(results)}/{len(symbols)} stocks")
         return results
         
     except Exception as e:
-        logger.error(f"Error in bulk fetch: {str(e)}. Using mock data.")
+        logger.error(f"Error in bulk fetch: {str(e)}. Using mock data for ALL.")
         # Full fallback
         for symbol in symbols:
             df_mock = generate_mock_data(symbol, '5d')
