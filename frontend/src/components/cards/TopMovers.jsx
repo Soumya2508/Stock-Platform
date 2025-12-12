@@ -45,7 +45,7 @@ function TopMovers() {
    <div className="movers-section">
     <h4 className="gainers-title">Top Gainers</h4>
     <div className="movers-list">
-     {data.gainers.map(stock => (
+     {(data.gainers || []).map(stock => (
       <div key={stock.symbol} className="mover-item gainer">
        <span className="mover-symbol">{cleanSymbol(stock.symbol)}</span>
        <span className="mover-change text-success">
@@ -59,7 +59,7 @@ function TopMovers() {
    <div className="movers-section">
     <h4 className="losers-title">Top Losers</h4>
     <div className="movers-list">
-     {data.losers.map(stock => (
+     {(data.losers || []).map(stock => (
       <div key={stock.symbol} className="mover-item loser">
        <span className="mover-symbol">{cleanSymbol(stock.symbol)}</span>
        <span className="mover-change text-danger">
