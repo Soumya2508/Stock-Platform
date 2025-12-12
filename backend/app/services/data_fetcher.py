@@ -144,7 +144,7 @@ def fetch_all_stocks(symbols: List[str] = STOCK_SYMBOLS) -> Dict[str, pd.DataFra
                 if symbol in df.columns:
                     symbol_df = df[symbol].copy()
                     
-                    if symbol_df.empty:
+                    if symbol_df.empty or symbol_df['Close'].count() == 0:
                         all_data[symbol] = generate_mock_data(symbol, DATA_PERIOD)
                         continue
                         
@@ -162,7 +162,7 @@ def fetch_all_stocks(symbols: List[str] = STOCK_SYMBOLS) -> Dict[str, pd.DataFra
              # Single symbol case fallback or weird structure
              if len(symbols) == 1:
                 symbol = symbols[0]
-                if df.empty:
+                if df.empty or 'Close' not in df.columns or df['Close'].count() == 0:
                      all_data[symbol] = generate_mock_data(symbol, DATA_PERIOD)
                 else:
                     df.reset_index(inplace=True)
