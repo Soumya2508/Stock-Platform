@@ -70,22 +70,38 @@ def calculate_52_week_high_low(df: pd.DataFrame) -> pd.DataFrame:
     Calculate 52-week (252 trading days) high and low.
     
     Uses rolling window to calculate trailing 52-week highs and lows.
+    The high is the maximum of open, high, close columns.
+    The low is the minimum of open, low, close columns.
     
     Args:
-        df: DataFrame with 'high' and 'low' columns
+        df: DataFrame with 'high', 'low', 'open', 'close' columns
     
     Returns:
         DataFrame with 'high_52w' and 'low_52w' columns added
     """
     trading_days_per_year = 252
     
-    if 'high' in df.columns:
+    # Calculate the max price for each day (considering open, high, close)
+    if all(col in df.columns for col in ['open', 'high', 'close']):
+        daily_max = df[['open', 'high', 'close']].max(axis=1)
+        df['high_52w'] = daily_max.rolling(
+            window=trading_days_per_year, 
+            min_periods=1
+        ).max().round(2)
+    elif 'high' in df.columns:
         df['high_52w'] = df['high'].rolling(
             window=trading_days_per_year, 
             min_periods=1
         ).max().round(2)
     
-    if 'low' in df.columns:
+    # Calculate the min price for each day (considering open, low, close)
+    if all(col in df.columns for col in ['open', 'low', 'close']):
+        daily_min = df[['open', 'low', 'close']].min(axis=1)
+        df['low_52w'] = daily_min.rolling(
+            window=trading_days_per_year, 
+            min_periods=1
+        ).min().round(2)
+    elif 'low' in df.columns:
         df['low_52w'] = df['low'].rolling(
             window=trading_days_per_year, 
             min_periods=1
