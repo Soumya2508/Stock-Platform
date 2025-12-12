@@ -80,7 +80,8 @@ async def get_stock_data(
     data_points = []
     for _, row in df.iterrows():
         point = StockDataPoint(
-            date=str(row['date']),
+            # Ensure date is strictly YYYY-MM-DD string
+            date=str(row['date'].date()) if hasattr(row['date'], 'date') else str(row['date']).split()[0],
             open=round(row['open'], 2),
             high=round(row['high'], 2),
             low=round(row['low'], 2),

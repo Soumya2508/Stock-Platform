@@ -58,7 +58,13 @@ def clean_stock_data(df: pd.DataFrame) -> pd.DataFrame:
             df = df.dropna(subset=[col])
     
     # Step 2: Remove duplicate dates (keep last)
+    # Ensure date is datetime for sorting/deduplication
     if 'date' in df.columns:
+        # Check if date is not datetime
+        if not pd.api.types.is_datetime64_any_dtype(df['date']):
+             # If it's already date objects, converting to datetime is fine
+             df['date'] = pd.to_datetime(df['date'])
+             
         df = df.drop_duplicates(subset=['date', 'symbol'], keep='last')
     
     # Step 3: Sort by date
