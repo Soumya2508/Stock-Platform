@@ -145,17 +145,15 @@ function PriceChart({ symbol }) {
        type="monotone"
        dataKey="ma7"
        stroke={colors.ma7}
-       strokeWidth={1.5}
+       strokeWidth={2}
        dot={false}
-       strokeDasharray="5 5"
       />
       <Line
        type="monotone"
        dataKey="ma20"
        stroke={colors.ma20}
-       strokeWidth={1.5}
+       strokeWidth={2}
        dot={false}
-       strokeDasharray="5 5"
       />
      </AreaChart>
     </ResponsiveContainer>
