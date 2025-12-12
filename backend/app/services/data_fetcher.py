@@ -31,17 +31,12 @@ logger = logging.getLogger(__name__)
 def fetch_stock_data(symbol: str, period: str = DATA_PERIOD) -> Optional[pd.DataFrame]:
     """
     Fetch historical stock data for a single symbol.
-    
-    Args:
-        symbol: Stock ticker (e.g., 'TCS.NS')
-        period: Data period ('1y', '6mo', '3mo', etc.)
-    
-    Returns:
-        DataFrame with OHLCV data or None if fetch fails
+    Uses yf.download which is more robust than Ticker.history
     """
     try:
-        ticker = yf.Ticker(symbol)
-        df = ticker.history(period=period)
+        # download returns a MultiIndex if we don't specify it to be simple for 1 ticker
+        # but auto_adjust=True is good for analysis
+        df = yf.download(symbol, period=period, progress=False, auto_adjust=True)
         
         if df.empty:
             logger.warning(f"No data returned for {symbol}")
@@ -56,8 +51,9 @@ def fetch_stock_data(symbol: str, period: str = DATA_PERIOD) -> Optional[pd.Data
         # Add symbol column
         df['symbol'] = symbol
         
-        # Convert date to date only (remove time)
-        df['date'] = pd.to_datetime(df['date']).dt.date
+        # Convert date to date only
+        if 'date' in df.columns:
+            df['date'] = pd.to_datetime(df['date']).dt.date
         
         logger.info(f"Fetched {len(df)} records for {symbol}")
         return df
@@ -69,23 +65,50 @@ def fetch_stock_data(symbol: str, period: str = DATA_PERIOD) -> Optional[pd.Data
 
 def fetch_all_stocks(symbols: List[str] = STOCK_SYMBOLS) -> Dict[str, pd.DataFrame]:
     """
-    Fetch historical data for all configured stock symbols.
-    
-    Args:
-        symbols: List of stock tickers to fetch
-    
-    Returns:
-        Dictionary mapping symbol to DataFrame
+    Fetch historical data for all configure stocks in BULK.
     """
     all_data = {}
     
-    for symbol in symbols:
-        df = fetch_stock_data(symbol)
-        if df is not None:
-            all_data[symbol] = df
-    
-    logger.info(f"Successfully fetched data for {len(all_data)}/{len(symbols)} stocks")
-    return all_data
+    try:
+        # Bulk download
+        # period default is 1y from config
+        df = yf.download(symbols, period=DATA_PERIOD, progress=False, group_by='ticker', auto_adjust=True)
+        
+        if df.empty:
+            return {}
+
+        if isinstance(df.columns, pd.MultiIndex):
+            for symbol in symbols:
+                if symbol in df.columns:
+                    symbol_df = df[symbol].copy()
+                    
+                    if symbol_df.empty:
+                        continue
+                        
+                    symbol_df.reset_index(inplace=True)
+                    symbol_df.columns = [col.lower().replace(' ', '_') for col in symbol_df.columns]
+                    symbol_df['symbol'] = symbol
+                    if 'date' in symbol_df.columns:
+                        symbol_df['date'] = pd.to_datetime(symbol_df['date']).dt.date
+                        
+                    all_data[symbol] = symbol_df
+        else:
+             # Single symbol case fallback
+             if len(symbols) == 1:
+                symbol = symbols[0]
+                df.reset_index(inplace=True)
+                df.columns = [col.lower().replace(' ', '_') for col in df.columns]
+                df['symbol'] = symbol
+                if 'date' in df.columns:
+                    df['date'] = pd.to_datetime(df['date']).dt.date
+                all_data[symbol] = df
+
+        logger.info(f"Successfully fetched bulk data for {len(all_data)}/{len(symbols)} stocks")
+        return all_data
+        
+    except Exception as e:
+        logger.error(f"Error in fetch_all_stocks: {e}")
+        return {}
 
 
 def get_company_info(symbol: str) -> Dict:

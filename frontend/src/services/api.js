@@ -7,8 +7,8 @@
 
 import axios from 'axios';
 
-// Base URL for API - uses environment variable or defaults to Render backend
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://stock-platform-r8yj.onrender.com';
+// Base URL for API - automatically selects localhost for dev, Render for prod
+const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000' : 'https://stock-platform-r8yj.onrender.com');
 
 const api = axios.create({
  baseURL: API_BASE_URL,
