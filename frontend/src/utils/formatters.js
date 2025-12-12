@@ -71,5 +71,6 @@ export function getChangeColor(value) {
  * Clean stock symbol for display
  */
 export function cleanSymbol(symbol) {
- return symbol.replace('.NS', '');
+ if (!symbol) return '';
+ return String(symbol).replace('.NS', '');
 }

@@ -59,7 +59,7 @@ function CompareChart({ comparison }) {
      <p className="tooltip-date">{formatDate(label)}</p>
      {payload.map((p, i) => (
       <p key={i} className="tooltip-value" style={{ color: p.stroke }}>
-       {p.name.replace('.NS', '')}: {p.value?.toFixed(2)}%
+       {String(p.name || '').replace('.NS', '')}: {p.value?.toFixed(2)}%
       </p>
      ))}
     </div>
@@ -120,13 +120,13 @@ function CompareChart({ comparison }) {
 
    <div className="comparison-summary">
     <div className="summary-card" style={{ borderColor: colors.stock1 }}>
-     <span className="summary-symbol">{symbol1.replace('.NS', '')}</span>
+     <span className="summary-symbol">{String(symbol1 || '').replace('.NS', '')}</span>
      <span className="summary-return" style={{ color: comparison.performance[symbol1].total_return >= 0 ? 'var(--success)' : 'var(--danger)' }}>
       {comparison.performance[symbol1].total_return >= 0 ? '+' : ''}{comparison.performance[symbol1].total_return}%
      </span>
     </div>
     <div className="summary-card" style={{ borderColor: colors.stock2 }}>
-     <span className="summary-symbol">{symbol2.replace('.NS', '')}</span>
+     <span className="summary-symbol">{String(symbol2 || '').replace('.NS', '')}</span>
      <span className="summary-return" style={{ color: comparison.performance[symbol2].total_return >= 0 ? 'var(--success)' : 'var(--danger)' }}>
       {comparison.performance[symbol2].total_return >= 0 ? '+' : ''}{comparison.performance[symbol2].total_return}%
      </span>
