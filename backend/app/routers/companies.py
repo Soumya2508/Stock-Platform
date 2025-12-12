@@ -13,7 +13,7 @@ import logging
 
 from app.config import STOCK_SYMBOLS, COMPANY_NAMES
 from app.schemas.company import CompanyInfo, CompanyListResponse
-from app.services.data_fetcher import fetch_latest_price
+from app.services.data_fetcher import fetch_latest_price, fetch_latest_prices_bulk
 from app.services.cache_service import (
     companies_cache, 
     get_cached, 
@@ -41,6 +41,9 @@ async def get_companies():
     
     companies = []
     
+    # Bulk fetch prices for better performance
+    prices_map = fetch_latest_prices_bulk(STOCK_SYMBOLS)
+    
     for symbol in STOCK_SYMBOLS:
         company_info = {
             'symbol': symbol,
@@ -49,11 +52,10 @@ async def get_companies():
             'daily_change': None
         }
         
-        # Fetch latest price
-        price_data = fetch_latest_price(symbol)
-        if price_data:
-            company_info['current_price'] = price_data['current_price']
-            company_info['daily_change'] = price_data['daily_change']
+        # Get data from bulk map
+        if symbol in prices_map:
+            company_info['current_price'] = prices_map[symbol]['current_price']
+            company_info['daily_change'] = prices_map[symbol]['daily_change']
         
         companies.append(CompanyInfo(**company_info))
     

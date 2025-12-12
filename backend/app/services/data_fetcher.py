@@ -133,3 +133,74 @@ def fetch_latest_price(symbol: str) -> Optional[Dict]:
     except Exception as e:
         logger.error(f"Error fetching latest price for {symbol}: {str(e)}")
         return None
+
+
+def fetch_latest_prices_bulk(symbols: List[str]) -> Dict[str, Dict]:
+    """
+    Fetch latest prices for multiple symbols in a single request.
+    Much faster than calling fetch_latest_price sequentially.
+    
+    Args:
+        symbols: List of stock tickers
+        
+    Returns:
+        Dictionary mapping symbol to {current_price, daily_change}
+    """
+    if not symbols:
+        return {}
+        
+    try:
+        # Download data for all symbols at once
+        # Using period='5d' to ensure we have enough data for change calculation
+        # group_by='ticker' ensures simpler column structure
+        df = yf.download(symbols, period='5d', progress=False, group_by='ticker')
+        
+        results = {}
+        
+        # If only one symbol, yf doesn't return multi-index with ticker at top level
+        if len(symbols) == 1:
+            symbol = symbols[0]
+            if not df.empty and len(df) >= 2:
+                try:
+                    current = float(df['Close'].iloc[-1])
+                    prev = float(df['Close'].iloc[-2])
+                    change = ((current - prev) / prev) * 100 if prev != 0 else 0
+                    results[symbol] = {'current_price': round(current, 2), 'daily_change': round(change, 2)}
+                except Exception as e:
+                    logger.error(f"Error parse single symbol {symbol}: {e}")
+            return results
+
+        # Multiple symbols
+        for symbol in symbols:
+            try:
+                # Check if symbol is in columns (top level)
+                if symbol in df.columns:
+                    symbol_df = df[symbol]
+                    # Ensure we have Close column
+                    if 'Close' in symbol_df.columns:
+                        series = symbol_df['Close'].dropna()
+                        
+                        if len(series) >= 2:
+                            current_price = float(series.iloc[-1])
+                            prev_close = float(series.iloc[-2])
+                            
+                            # Handle zero division
+                            if prev_close == 0:
+                                change = 0.0
+                            else:
+                                change = ((current_price - prev_close) / prev_close) * 100
+                                
+                            results[symbol] = {
+                                'current_price': round(current_price, 2),
+                                'daily_change': round(change, 2)
+                            }
+            except Exception as e:
+                logger.warning(f"Error processing {symbol} in bulk fetch: {e}")
+                continue
+                
+        logger.info(f"Bulk fetched prices for {len(results)}/{len(symbols)} stocks")
+        return results
+        
+    except Exception as e:
+        logger.error(f"Error in bulk fetch: {str(e)}")
+        return {}

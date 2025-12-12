@@ -13,7 +13,7 @@ import logging
 
 from app.config import STOCK_SYMBOLS, COMPANY_NAMES
 from app.schemas.stock_data import TopMoversResponse, TopMover
-from app.services.data_fetcher import fetch_latest_price
+from app.services.data_fetcher import fetch_latest_prices_bulk  # Add import
 from app.services.cache_service import (
     companies_cache,
     get_cached,
@@ -42,18 +42,19 @@ async def get_top_movers():
     if cached:
         return cached
     
-    # Collect all stock data
+    # Collect all stock data using bulk fetch
     all_stocks = []
     
+    prices_map = fetch_latest_prices_bulk(STOCK_SYMBOLS)
+    
     for symbol in STOCK_SYMBOLS:
-        price_data = fetch_latest_price(symbol)
-        
-        if price_data and price_data.get('current_price') is not None:
+        if symbol in prices_map:
+            price_data = prices_map[symbol]
             all_stocks.append({
                 'symbol': symbol,
                 'name': COMPANY_NAMES.get(symbol, symbol.replace('.NS', '')),
                 'current_price': price_data['current_price'],
-                'daily_change': price_data.get('daily_change', 0)
+                'daily_change': price_data['daily_change']
             })
     
     # Sort by daily change
