@@ -48,6 +48,8 @@ BASE_PRICES = {
     "KOTAKBANK.NS": 1750.0,
 }
 
+import hashlib
+
 def generate_mock_data(symbol: str, period: str = "1y") -> pd.DataFrame:
     """Generate realistic random walk data for fallback"""
     base_price = BASE_PRICES.get(symbol, 1000.0)
@@ -61,18 +63,24 @@ def generate_mock_data(symbol: str, period: str = "1y") -> pd.DataFrame:
     end_date = datetime.now()
     dates = pd.date_range(end=end_date, periods=days, freq='B')
     
+    # Deterministic seed using SHA256 (stable across processes/restarts)
+    today_str = datetime.now().strftime('%Y-%m-%d')
+    seed_str = f"{symbol}-{today_str}"
+    seed_val = int(hashlib.sha256(seed_str.encode('utf-8')).hexdigest(), 16) % (2**32)
+    rs = np.random.RandomState(seed_val)
+    
     # Generate random walk
     input_dates = len(dates)
-    returns = np.random.normal(loc=0.0005, scale=0.015, size=input_dates)
+    returns = rs.normal(loc=0.0005, scale=0.015, size=input_dates)
     price_path = base_price * (1 + returns).cumprod()
     
     # Create valid prices
     df = pd.DataFrame(index=dates)
-    df['open'] = price_path * (1 + np.random.normal(0, 0.005, input_dates))
+    df['open'] = price_path * (1 + rs.normal(0, 0.005, input_dates))
     df['close'] = price_path
-    df['high'] = df[['open', 'close']].max(axis=1) * (1 + abs(np.random.normal(0, 0.005, input_dates)))
-    df['low'] = df[['open', 'close']].min(axis=1) * (1 - abs(np.random.normal(0, 0.005, input_dates)))
-    df['volume'] = np.random.randint(100000, 5000000, size=input_dates)
+    df['high'] = df[['open', 'close']].max(axis=1) * (1 + abs(rs.normal(0, 0.005, input_dates)))
+    df['low'] = df[['open', 'close']].min(axis=1) * (1 - abs(rs.normal(0, 0.005, input_dates)))
+    df['volume'] = rs.randint(100000, 5000000, size=input_dates)
     
     df['symbol'] = symbol
     df['date'] = df.index.date
