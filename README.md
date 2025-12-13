@@ -131,16 +131,21 @@ npm run dev
 ## Screenshots
 
 The dashboard features:
-- Company sidebar with search
-- Interactive price charts with moving averages
-- Stock comparison overlay charts
-- Correlation heatmap
-- ML prediction with confidence bands
+- Company sidebar with search<img width="2560" height="1278" alt="screencapture-stock-platform-3f3ghlk7q-soumyas-projects-0b365b8b-vercel-app-2025-12-13-18_14_57" src="https://github.com/user-attachments/assets/25642c41-baf1-4f8c-bd0a-fef502e38247" />
+
+- Interactive price charts with moving averages<img width="2560" height="1278" alt="screencapture-stock-platform-3f3ghlk7q-soumyas-projects-0b365b8b-vercel-app-2025-12-13-18_16_28" src="https://github.com/user-attachments/assets/25a3e1a2-b987-4398-a390-282651d2df08" />
+
+- Stock comparison overlay charts<img width="2560" height="1278" alt="screencapture-stock-platform-3f3ghlk7q-soumyas-projects-0b365b8b-vercel-app-compare-2025-12-13-18_17_44" src="https://github.com/user-attachments/assets/abe7f7fd-3be5-4fbe-a61d-0f2b465d713a" />
+
+- Correlation heatmap<img width="2560" height="1278" alt="screencapture-stock-platform-3f3ghlk7q-soumyas-projects-0b365b8b-vercel-app-correlation-2025-12-13-18_19_08" src="https://github.com/user-attachments/assets/242866c3-6644-4a07-94c2-df113620df52" />
+
+- ML prediction with confidence bands<img width="2560" height="1278" alt="screencapture-stock-platform-3f3ghlk7q-soumyas-projects-0b365b8b-vercel-app-predictions-2025-12-13-18_18_25" src="https://github.com/user-attachments/assets/14c800a8-abee-43a7-934a-1f5085be8218" />
+
 - Light/Dark mode toggle
 
 ## Author
 
-Built for Jarnox Internship Assignment
+Soumya Ranjan Patra
 
 ## License
 
