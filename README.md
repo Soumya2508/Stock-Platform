@@ -5,7 +5,7 @@ A comprehensive stock data intelligence platform featuring real-time analytics, 
 ## Features
 
 - **Real-time Stock Data**: Fetches live data for 15 NSE stocks using yfinance
-- **Calculated Metrics**: Daily Return, Moving Averages (7/20 day), 52-week High/Low, Volatility Score, Momentum Index
+- **Calculated Metrics**: Daily Return, Closing Price, Opening Price, Moving Averages 7 day, 52-week High/Low, Volatility Score, Momentum Index
 - **REST APIs**: FastAPI backend with Swagger documentation
 - **Interactive Dashboard**: React frontend with charts, filters, and comparison tools
 - **ML Predictions**: XGBoost-based 7-day price forecasting
