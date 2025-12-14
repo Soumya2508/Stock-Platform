@@ -19,6 +19,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from pathlib import Path
+from sqlalchemy import text
 
 from app.config import DATABASE_URL, DATABASE_PATH
 
@@ -56,4 +57,19 @@ def init_db():
     Initialize the database by creating all tables.
     Should be called on application startup.
     """
+    # Important: ensure model modules are imported so they register with Base.metadata
+    # Otherwise create_all() will create zero tables.
+    from app.database import models  # noqa: F401
     Base.metadata.create_all(bind=engine)
+
+    # Lightweight SQLite migration: add columns if older DB exists.
+    # This keeps local/dev DBs compatible without introducing Alembic.
+    try:
+        with engine.begin() as conn:
+            cols = conn.execute(text("PRAGMA table_info('stock_data')")).fetchall()
+            col_names = {row[1] for row in cols}  # row[1] = column name
+            if 'trend_strength' not in col_names:
+                conn.execute(text('ALTER TABLE stock_data ADD COLUMN trend_strength FLOAT'))
+    except Exception:
+        # Migration is best-effort; don't block API startup.
+        pass

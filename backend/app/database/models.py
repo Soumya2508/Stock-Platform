@@ -58,6 +58,7 @@ class StockData(Base):
     low_52w = Column(Float)
     volatility = Column(Float)
     momentum = Column(Float)
+    trend_strength = Column(Float)
     
     # Timestamps
     created_at = Column(DateTime, server_default=func.now())
