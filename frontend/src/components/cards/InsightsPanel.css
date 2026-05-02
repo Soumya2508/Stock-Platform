@@ -1,0 +1,25 @@
+/*
+ * InsightsPanel component styles
+ */
+
+.insights-panel {
+ margin-top: var(--spacing-lg);
+}
+
+.insights-panel h3 {
+ font-size: 1rem;
+ margin-bottom: var(--spacing-md);
+ color: var(--text-secondary);
+}
+
+.insights-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+ gap: var(--spacing-md);
+}
+
+@media (max-width: 768px) {
+ .insights-grid {
+  grid-template-columns: repeat(2, 1fr);
+ }
+}

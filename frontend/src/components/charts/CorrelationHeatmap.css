@@ -1,0 +1,95 @@
+/*
+ * CorrelationHeatmap component styles
+ */
+
+.correlation-heatmap {
+ background: var(--bg-card);
+ border: 1px solid var(--border-color);
+ border-radius: var(--radius-lg);
+ padding: var(--spacing-lg);
+}
+
+.correlation-heatmap h3 {
+ font-size: 1.1rem;
+ margin-bottom: var(--spacing-sm);
+}
+
+.heatmap-description {
+ font-size: 0.85rem;
+ color: var(--text-tertiary);
+ margin-bottom: var(--spacing-lg);
+}
+
+.heatmap-container {
+ overflow-x: auto;
+}
+
+.heatmap-table {
+ width: 100%;
+ border-collapse: collapse;
+ font-size: 0.75rem;
+}
+
+.heatmap-table th,
+.heatmap-table td {
+ padding: 8px 4px;
+ text-align: center;
+}
+
+.heatmap-table th {
+ font-weight: 600;
+ color: var(--text-secondary);
+ white-space: nowrap;
+}
+
+.row-label {
+ font-weight: 600;
+ color: var(--text-secondary);
+ text-align: left !important;
+ padding-right: 12px !important;
+ white-space: nowrap;
+}
+
+.heatmap-cell {
+ color: white;
+ font-weight: 500;
+ border-radius: 4px;
+ cursor: pointer;
+ transition: transform var(--transition-fast);
+}
+
+.heatmap-cell:hover {
+ transform: scale(1.1);
+ z-index: 1;
+}
+
+.heatmap-error {
+ color: var(--text-tertiary);
+ text-align: center;
+ padding: var(--spacing-xl);
+}
+
+.heatmap-legend {
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ gap: var(--spacing-md);
+ margin-top: var(--spacing-lg);
+ padding-top: var(--spacing-md);
+ border-top: 1px solid var(--border-color);
+}
+
+.legend-label {
+ font-size: 0.75rem;
+ color: var(--text-tertiary);
+}
+
+.legend-gradient {
+ width: 150px;
+ height: 12px;
+ border-radius: 6px;
+ background: linear-gradient(90deg,
+   hsl(0, 70%, 35%) 0%,
+   hsl(0, 0%, 50%) 50%,
+   hsl(142, 70%, 35%) 100%);
+}

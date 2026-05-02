@@ -1,0 +1,107 @@
+/*
+ * Predictions page styles
+ */
+
+.predictions-page {
+ max-width: 1200px;
+ margin: 0 auto;
+}
+
+.stock-selector-single {
+ display: flex;
+ flex-direction: column;
+ gap: var(--spacing-sm);
+ max-width: 400px;
+ margin-bottom: var(--spacing-xl);
+}
+
+.stock-selector-single label {
+ font-size: 0.85rem;
+ font-weight: 500;
+ color: var(--text-secondary);
+}
+
+.stock-selector-single select {
+ width: 100%;
+ padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.prediction-results {
+ display: flex;
+ flex-direction: column;
+ gap: var(--spacing-lg);
+}
+
+.prediction-summary {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+ gap: var(--spacing-md);
+}
+
+.summary-item {
+ display: flex;
+ flex-direction: column;
+ gap: 4px;
+ padding: var(--spacing-lg);
+ background: var(--bg-card);
+ border: 1px solid var(--border-color);
+ border-radius: var(--radius-lg);
+}
+
+.summary-item .label {
+ font-size: 0.8rem;
+ color: var(--text-tertiary);
+ text-transform: uppercase;
+ letter-spacing: 0.5px;
+}
+
+.summary-item .value {
+ font-size: 1.25rem;
+ font-weight: 700;
+ color: var(--text-primary);
+}
+
+.trend-bullish {
+ color: var(--success) !important;
+}
+
+.trend-bearish {
+ color: var(--danger) !important;
+}
+
+.trend-neutral {
+ color: var(--text-secondary) !important;
+}
+
+.prediction-chart {
+ background: var(--bg-card);
+ border: 1px solid var(--border-color);
+ border-radius: var(--radius-lg);
+ padding: var(--spacing-lg);
+}
+
+.prediction-chart h3 {
+ font-size: 1rem;
+ margin-bottom: var(--spacing-md);
+}
+
+.chart-note {
+ text-align: center;
+ font-size: 0.8rem;
+ color: var(--text-tertiary);
+ margin-top: var(--spacing-md);
+}
+
+.prediction-error {
+ padding: var(--spacing-xl);
+ text-align: center;
+ color: var(--danger);
+ background: var(--danger-bg);
+ border-radius: var(--radius-lg);
+}
+
+.predictions-hint {
+ text-align: center;
+ padding: var(--spacing-2xl);
+ color: var(--text-tertiary);
+}
